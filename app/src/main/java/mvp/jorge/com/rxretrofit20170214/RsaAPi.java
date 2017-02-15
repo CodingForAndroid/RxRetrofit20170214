@@ -16,5 +16,5 @@ import rx.Subscriber;
 public interface RsaAPi {
     @FormUrlEncoded
     @POST("consult.action")
-    Subscriber<HttpResult<ROConsult>> getRSA(@FieldMap Map<String, Object> fields);
+    Subscriber<HttpResult2<ROConsult>> getRSA(@FieldMap Map<String, Object> fields);
 }

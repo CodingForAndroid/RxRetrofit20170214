@@ -2,8 +2,6 @@ package mvp.jorge.com.rxretrofit20170214.http;
 
 import android.annotation.SuppressLint;
 
-import com.womai.service.IGlobal;
-
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -32,7 +30,7 @@ public class HttpUtils {
 //	{"userid":"71339042","usersession":"d9715d4307abfe93334def28316ca385","sendcouponcard":{"message":"欢迎使用手机我买网","isshow":"false"},"test1":"03984a54a506a7b011c475ee6ab18a70"}
 //	02-14 16:33:29.475 15336-15336/? I/TDLOG: onLogin called --> account is 71339042
 
-	public static IGlobal global = null;
+//	public static IGlobal global = null;
 
 	/**
 	 * 获取用户相关接口的commom对象
@@ -41,11 +39,11 @@ public class HttpUtils {
 	 */
 	private static Map<String, String> getUserCommon() {
 		Map<String, String> common = new ConcurrentHashMap<String, String>();
-		common.put("mid", global.getMid());
-		common.put("userId", global.getUserId());
-		common.put("userSession", global.getUserSession());
-		common.put("test1", global.getTest1());
-		common.put("cityCode", global.getSelectCityId());
+		common.put("mid", "0");
+		common.put("userId","");
+		common.put("userSession", "");
+		common.put("test1", "");
+		common.put("cityCode", "31000");
 		return common;
 	}
 
@@ -98,24 +96,24 @@ public class HttpUtils {
 	/**
 	 * 获取缓存的header
 	 * 
-	 * @param conn
+	 * @param
 	 */
 	@SuppressLint("SimpleDateFormat")
 	public static Map<String, String> getCacheHeader() {
 		Map<String, String> header = new ConcurrentHashMap<String, String>();
-		header.put("userId", global.getUserId()); // 用户id
-		header.put("udid", global.getUdid());// 客户端唯一性标示
-		header.put("os", global.getOs());// 操作系统名称
-		header.put("osVersion", global.getOsVersion());// 操作系统版本
-		header.put("appVersion", global.getAppVersion());// APP 版本
-		header.put("sourceId", global.getSourceId());// 推广id
-		header.put("ver", global.getVer());// 通讯协议版本
-		header.put("test", global.getTest());// 客户端唯一性标示
-		header.put("height", global.getHeight());
-		header.put("width", global.getWidth());
-		header.put("level", global.getLevel());
-		header.put("mipSourceId", "1002");
-		header.put("deviceModel",global.getDeviceModel());
+//		header.put("userId", global.getUserId()); // 用户id
+//		header.put("udid", global.getUdid());// 客户端唯一性标示
+//		header.put("os", global.getOs());// 操作系统名称
+//		header.put("osVersion", global.getOsVersion());// 操作系统版本
+//		header.put("appVersion", global.getAppVersion());// APP 版本
+//		header.put("sourceId", global.getSourceId());// 推广id
+//		header.put("ver", global.getVer());// 通讯协议版本
+//		header.put("test", global.getTest());// 客户端唯一性标示
+//		header.put("height", global.getHeight());
+//		header.put("width", global.getWidth());
+//		header.put("level", global.getLevel());
+//		header.put("mipSourceId", "1002");
+//		header.put("deviceModel",global.getDeviceModel());
 		return header;
 	}
 
@@ -172,7 +170,7 @@ public class HttpUtils {
 			}
 			return params.toString();
 		} catch (Exception e) {
-			ServiceLog.e(e);
+//			ServiceLog.e(e);
 			return null;
 		}
 	}
@@ -200,7 +198,7 @@ public class HttpUtils {
 			}
 			return params.toString();
 		} catch (Exception e) {
-			ServiceLog.e(e);
+//			ServiceLog.e(e);
 			return null;
 		}
 	}

@@ -12,11 +12,12 @@ public abstract class BaseActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mActivity = this;
         createContent();
         findViews();
         initData();
         setListener();
-        mActivity = this;
+
     }
 
     /***

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 public class MainActivity extends BaseActivity  implements LoginContract.ILoginView{
     private Button loginButton ;
@@ -41,7 +42,7 @@ public class MainActivity extends BaseActivity  implements LoginContract.ILoginV
 
     @Override
     public void showLoading() {
-
+        Toast.makeText(this,"showLoading",Toast.LENGTH_LONG).show();
     }
 
     @Override
@@ -51,16 +52,16 @@ public class MainActivity extends BaseActivity  implements LoginContract.ILoginV
 
     @Override
     public void showUserNameError(String error) {
-
+        Toast.makeText(this,error,Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void showPassWordError(String error) {
-
+        Toast.makeText(this,error,Toast.LENGTH_LONG).show();
     }
 
     @Override
     public void loginSuccess() {
-
+        Toast.makeText(this,"loginSuccess",Toast.LENGTH_LONG).show();
     }
 }

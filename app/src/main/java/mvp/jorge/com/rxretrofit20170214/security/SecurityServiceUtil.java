@@ -42,14 +42,14 @@ public class SecurityServiceUtil {
             Map<String, String> param = new HashMap<String, String>();
             param.put("data", base64str);
 
-            String response = new HttpNet().doPost(logBuffer, urlString, headerMap, param);
-            if ((response != null) && (response.length() > 0)) {
-                roConsult = ServiceUtils.toROObject(logBuffer, response, originalKeyString.getBytes(), ROConsult.class);
-            }
+//            String response = new HttpNet().doPost(logBuffer, urlString, headerMap, param);
+//            if ((response != null) && (response.length() > 0)) {
+//                roConsult = ServiceUtils.toROObject(logBuffer, response, originalKeyString.getBytes(), ROConsult.class);
+//            }
         } catch (Exception e) {
-            ServiceLog.e(e);
+//            ServiceLog.e(e);
         }
-        ServiceLog.d(logBuffer.toString());
+//        ServiceLog.d(logBuffer.toString());
         if (roConsult != null) {
             return roConsult.consult.public_key;
         }else{
