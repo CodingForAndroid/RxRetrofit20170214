@@ -23,15 +23,11 @@ public interface WoMaiApiService {
 
     @FormUrlEncoded
     @POST("login.action")
-    Subscriber<String> login(@Field("userName")String userName,@Field("password")String password);
+    Observable<String> login(@Field("userName")String userName,@Field("password")String password);
 
     @FormUrlEncoded
     @POST("consult.action")
     Observable<ROConsult> getRsa(@FieldMap Map<String, String> param );
-
-    @FormUrlEncoded
-    @POST("consult.action")
-    Observable<ROConsult>  getRsa (@Field("data") String data);
 
     @GET("top250")
     Observable<HttpResult<List<Subject>>> getTopMovie(@Query("start") int start, @Query("count") int count);
