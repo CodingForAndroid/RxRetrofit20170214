@@ -40,7 +40,8 @@ public class LoginPresenter implements LoginContract.ILoginPresenter {
 
             }
         };
-        retrofitHelper.getTopMovie(new ProgressSubscriber(onNextListener, mContext), 0, 10);
+//        retrofitHelper.getTopMovie(new ProgressSubscriber(onNextListener, mContext), 0, 10);
+        retrofitHelper.getRsa(new ProgressSubscriber(onNextListener,mContext),mContext);
         // 网络请求
 //        Observable<ROConsult> rsa = retrofitHelper.getRsa();
 //        rsa.subscribeOn(Schedulers.io())

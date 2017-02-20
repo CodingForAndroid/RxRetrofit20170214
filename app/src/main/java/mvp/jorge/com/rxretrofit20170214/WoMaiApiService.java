@@ -29,6 +29,9 @@ public interface WoMaiApiService {
     @POST("consult.action")
     Observable<ROConsult> getRsa(@FieldMap Map<String, String> param );
 
+    @FormUrlEncoded
+    @POST("consult.action")
+    Observable<ROConsult>  getRsa (@Field("data") String data);
 
     @GET("top250")
     Observable<HttpResult<List<Subject>>> getTopMovie(@Query("start") int start, @Query("count") int count);

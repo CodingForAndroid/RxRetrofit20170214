@@ -1,5 +1,7 @@
 package mvp.jorge.com.rxretrofit20170214;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.util.Log;
 
 import java.io.IOException;
@@ -124,7 +126,7 @@ public class RetrofitHelper {
         OkBuilder.readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
     };
 
-    public void getRsa(Subscriber<List<Subject>> subscriber){
+    public void getRsa(Subscriber<List<Subject>> subscriber,Context context){
         String originalKeyString = ThreeDES.WOMAI_PUBLIC_KEY;
         String header = ObjectMaker.unConVer(HttpUtils.getHeader());
         Map<String, String> param  = new HashMap<String, String>();;
@@ -146,21 +148,71 @@ public class RetrofitHelper {
             e.printStackTrace();
         }
 //        return mGameService.login(params, mRequestHelper.getDeviceId()).subscribeOn(Schedulers.io());
-         woMaiApiService.getRsa(param);
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        builder.connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+//         woMaiApiService.getRsa(param);
+        OkHttpClient  okHttpClient= new OkHttpClient.Builder().build();
+//        OkHttpClient okHttpClient = new OkHttpClient();
+       ;
+//        okHttpClient.interceptors().add(new AddCookiesInterceptor(context) );
+//
+        Interceptor httpInterceptor =  new Interceptor() {
+            @Override
+            public Response intercept(Interceptor.Chain chain) throws IOException {
+//                Request request = chain.request();
+//                return  null;
+                final Request.Builder builder = chain.request().newBuilder();
+                Request request = chain.request();
+                HttpUrl httpUrl = request.url();
+//                HttpUrl httpUrl = request.url().newBuilder()
+//                        .addQueryParameter("token", "tokenValue")
+//                        .build();
+//                Request.Builder builder = request.newBuilder();
 
+                Log.e("initOkHttp","67");
+                String originalKeyString = ThreeDES.WOMAI_PUBLIC_KEY;
+                String header = ObjectMaker.unConVer(HttpUtils.getHeader());
+                Map<String, String> param  = new HashMap<String, String>();;
+                try {
+                    header = ThreeDES.orginalEncoded(originalKeyString, header);
+
+//                    Map<String, String> headerMap = new HashMap<String, String>();
+//                    headerMap.put("headerData", header);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                builder.addHeader("headerData",header);
+                Log.e("initOkHttp","80");
+                return chain.proceed(builder.build());
+
+            }
+        };
+//        builder.connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+//        builder.addInterceptor(httpInterceptor);
+//        builder.addInterceptor(new Interceptor() {
+//            @Override
+//            public Response intercept(Chain chain) throws IOException {
+//                Request mRequest = chain.request().newBuilder()
+//                        .header("User-Agent","android/" +
+//                               6.0 + "(" +
+//                              23 + ";" +
+//                               1 + ")")
+//                        .build();
+//                return chain.proceed(mRequest);
+//            }
+//        });
         Retrofit retrofit = new Retrofit.Builder()
-                .client(builder.build())
+
                 //modify by zqikai 20160317 for 对http请求结果进行统一的预处理 GosnResponseBodyConvert
 //                .addConverterFactory(GsonConverterFactory.create())
                 .addConverterFactory(ResponseConvertFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                .baseUrl(BASE_URL)
+                .baseUrl(UserService_IP)
+//                .client( new OkHttpClient.Builder().addInterceptor(new AddCookiesInterceptor(context)).build())
+                .client( new OkHttpClient.Builder().addInterceptor(httpInterceptor).build())
                 .build();
 
         WoMaiApiService   movieService = retrofit.create(WoMaiApiService.class);
-        Observable observable = movieService.getRsa(param);
+//        Observable observable = movieService.getRsa(param);
+        Observable observable = movieService.getRsa(param.get("data"));
 
         toSubscribe(observable, subscriber);
     }
@@ -208,4 +260,33 @@ public class RetrofitHelper {
             return httpResult.getSubjects();
         }
     }
+
+    public class AddCookiesInterceptor implements Interceptor {
+        private Context context;
+
+        public AddCookiesInterceptor(Context context) {
+            super();
+            this.context = context;
+
+        }
+
+        @Override
+        public Response intercept(Chain chain) throws IOException {
+
+            final Request.Builder builder = chain.request().newBuilder();
+            SharedPreferences sharedPreferences = context.getSharedPreferences("cookie", Context.MODE_PRIVATE);
+//最近在学习RxJava,这里用了RxJava的相关API大家可以忽略,用自己逻辑实现即可
+            Observable.just(sharedPreferences.getString("cookie", ""))
+                    .subscribe(new Action1<String>() {
+                        @Override
+                        public void call(String cookie) {
+                            //添加cookie
+                            builder.addHeader("Cookie", cookie);
+                        }
+                    });
+
+            return chain.proceed(builder.build());
+        }
+    }
+
 }
