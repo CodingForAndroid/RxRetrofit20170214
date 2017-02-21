@@ -40,8 +40,8 @@ public class LoginPresenter implements LoginContract.ILoginPresenter {
 
             }
         };
-//        retrofitHelper.getTopMovie(new ProgressSubscriber(onNextListener, mContext), 0, 10);
-        retrofitHelper.getRsa(new ProgressSubscriber(onNextListener,mContext));
+//        retrofitHelper.getRsa(new ProgressSubscriber(onNextListener,mContext));
+        retrofitHelper.getLogin(userName,passWord,new ProgressSubscriber(onNextListener,mContext));
 
     }
 

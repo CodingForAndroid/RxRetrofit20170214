@@ -15,14 +15,12 @@ import mvp.jorge.com.rxretrofit20170214.entity.Subject;
 import mvp.jorge.com.rxretrofit20170214.http.HttpUtils;
 import mvp.jorge.com.rxretrofit20170214.security.ThreeDES;
 import mvp.jorge.com.rxretrofit20170214.util.ObjectMaker;
-import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
-import retrofit2.converter.gson.GsonConverterFactory;
 import rx.Observable;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
@@ -36,29 +34,14 @@ import rx.schedulers.Schedulers;
 
 public class RetrofitHelper {
     public  static  final String UserService_IP = "http://wapi.m.womai.com/";
-    public static final String BASE_URL = "https://api.douban.com/v2/movie/";
     private  WoMaiApiService woMaiApiService;
     public  final int DEFAULT_TIMEOUT = 30;
-    private OkHttpClient.Builder OkBuilder;
     public RetrofitHelper(){
-        initOkHttp();
+
         getLoginApi();
     }
     public  void  getLoginApi(){
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        builder.connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
-        builder.readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .client(OkBuilder.build())
-                .baseUrl(UserService_IP)
-                .addConverterFactory(GsonConverterFactory.create())
-                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
-                .build();
-        woMaiApiService = retrofit.create(WoMaiApiService.class);
-    }
-    private void initOkHttp(){
-        OkBuilder = new OkHttpClient.Builder();
+        OkHttpClient.Builder   OkBuilder = new OkHttpClient.Builder();
         Interceptor httpInterceptor =  new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
@@ -82,27 +65,8 @@ public class RetrofitHelper {
             public Response intercept(Chain chain) throws IOException {
                 Request request = chain.request();
                 Request.Builder builder = request.newBuilder();
-                builder.addHeader("Set-Cookie","JSESSIONID=");
+                builder.addHeader("Cookie","JSESSIONID=");
                 Response response = chain.proceed(builder.build());
-//                if (!originalResponse.headers("Set-Cookie").isEmpty()) {
-//                    final StringBuffer cookieBuffer = new StringBuffer();
-//                    Observable.from(originalResponse.headers("Set-Cookie"))
-//                            .map(new Func1<String, String>() {
-//                                @Override
-//                                public String call(String s) {
-//                                    String[] cookieArray = s.split(";");
-//                                    return cookieArray[0];
-//                                }
-//                            })
-//                            .subscribe(new Action1<String>() {
-//                                @Override
-//                                public void call(String cookie) {
-//                                    if (cookie.startsWith("JSESSIONID=")) {
-////                                        HttpUtils.setJessionId(cookie.replace("", "JSESSIONID="));
-//                                    }
-//                                }
-//                            });
-//                }
                 return response;
             }
         };
@@ -110,8 +74,20 @@ public class RetrofitHelper {
         OkBuilder.addInterceptor(cookiesInterceptor);
         OkBuilder.connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
         OkBuilder.readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
-    };
 
+        Retrofit retrofit = new Retrofit.Builder()
+                .client(OkBuilder.build())
+                .baseUrl(UserService_IP)
+                .addConverterFactory(ResponseConvertFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .build();
+        woMaiApiService = retrofit.create(WoMaiApiService.class);
+    }
+
+    /**
+     * 获取rsa 证书
+     * @param subscriber
+     */
     public void getRsa(Subscriber<List<Subject>> subscriber){
         String originalKeyString = ThreeDES.WOMAI_PUBLIC_KEY;
         Map<String, String> param  = new HashMap<String, String>();;
@@ -126,15 +102,62 @@ public class RetrofitHelper {
             e.printStackTrace();
         }
 
-        Observable observable=  woMaiApiService.getRsa(param);
+        Observable observable =  woMaiApiService.getRsa(param);
         toSubscribe(observable, subscriber);
     }
+
+    /**
+     *  登录 api
+     * @param userName
+     * @param passWord
+     */
+    public void  getLogin(String userName,String passWord ,Subscriber<String> subscriber){
+        Observable observable = woMaiApiService.login(userName,passWord);
+        toSubscribe(observable, subscriber);
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     private <T> void toSubscribe(Observable<T> o, Subscriber<T> s){
         o.subscribeOn(Schedulers.io())
                 .unsubscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(s);
     }
+
+
+
 
     /**
      * 用来统一处理Http的resultCode,并将HttpResult的Data部分剥离出来返回给subscriber
