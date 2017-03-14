@@ -2,6 +2,7 @@ package mvp.jorge.com.rxretrofit20170214;
 
 import android.content.Context;
 import android.text.TextUtils;
+import android.util.Log;
 
 import mvp.jorge.com.rxretrofit20170214.bean.ROConsult;
 import mvp.jorge.com.rxretrofit20170214.subscribers.ProgressSubscriber;
@@ -37,13 +38,14 @@ public class LoginPresenter implements LoginContract.ILoginPresenter {
         SubscriberOnNextListener  onNextListener = new SubscriberOnNextListener() {
             @Override
             public void onNext(Object o) {
+                Log.e("LoginPresenter",""+o.toString());
 
             }
         };
-//        retrofitHelper.getRsa(new ProgressSubscriber(onNextListener,mContext));
-        retrofitHelper.getLogin(userName,passWord,new ProgressSubscriber(onNextListener,mContext));
-
-    }
+        retrofitHelper.getRsa(new ProgressSubscriber(onNextListener,mContext));
+//        retrofitHelper.getLogin(userName,passWord,new ProgressSubscriber(onNextListener,mContext));
+//
+           }
 
     @Override
     public void attachView(LoginContract.ILoginView view) {

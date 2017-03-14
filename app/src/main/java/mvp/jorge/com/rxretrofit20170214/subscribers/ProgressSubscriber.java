@@ -87,6 +87,7 @@ public class ProgressSubscriber<T> extends Subscriber<T> implements ProgressCanc
     @Override
     public void onNext(T t) {
         if (mSubscriberOnNextListener != null) {
+            Toast.makeText(context, "go to  onNext", Toast.LENGTH_SHORT).show();
             mSubscriberOnNextListener.onNext(t);
         }
     }

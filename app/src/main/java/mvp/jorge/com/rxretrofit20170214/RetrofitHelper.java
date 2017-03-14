@@ -103,7 +103,15 @@ public class RetrofitHelper {
         }
 
         Observable observable =  woMaiApiService.getRsa(param);
-        toSubscribe(observable, subscriber);
+        observable .map(new HttpResultFunc<ROConsult>()).doOnNext(new Action1() {
+            @Override
+            public void call(Object o) {
+                Log.e("HttpResultFunc","1111111111111111");
+            }
+        }).subscribeOn(Schedulers.io())
+                .unsubscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread()).subscribe();
+//        toSubscribe(observable, subscriber);
     }
 
     /**
@@ -164,14 +172,21 @@ public class RetrofitHelper {
      *
      * @param <T>   Subscriber真正需要的数据类型，也就是Data部分的数据类型
      */
-    private class HttpResultFunc<T> implements Func1<HttpResult<T>, T>{
+    private class HttpResultFunc<T> implements Func1<HttpResult2<T>, T>{
+
+        private static final String resp_ok = "00";
 
         @Override
-        public T call(HttpResult<T> httpResult) {
-            if (httpResult.getCount() == 0) {
-                throw new ApiException(100);
-            }
-            return httpResult.getSubjects();
+        public T call(HttpResult2<T> tHttpResult2) {
+            String respCode = tHttpResult2.getRespCode();
+
+           if(resp_ok.equals(respCode)){
+
+           }else {
+               throw new ApiException(respCode);
+           }
+
+            return tHttpResult2.getData();
         }
     }
 

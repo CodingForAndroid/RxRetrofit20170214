@@ -13,7 +13,7 @@ import retrofit2.Converter;
 /**
  * Created by Charles on 2016/3/17.
  */
-class GsonResponseBodyConverter<T> implements Converter<ResponseBody, T> {
+class GsonResponseBodyConverter implements Converter<ResponseBody,String> {
     private final Gson gson;
     private final Type type;
 
@@ -23,17 +23,22 @@ class GsonResponseBodyConverter<T> implements Converter<ResponseBody, T> {
     }
 
     @Override
-    public T convert(ResponseBody value) throws IOException {
+    public String convert(ResponseBody value) throws IOException {
         String response = value.string();
             Log.d("Network", "response>>" + response);
             //httpResult 只解析result字段
-            HttpResult httpResult = gson.fromJson(response, HttpResult.class);
+            HttpResult2 httpResult = gson.fromJson(response, HttpResult2.class);
             //
-            if (httpResult.getCount() == 0) {
-                throw new ApiException(100);
-            }
-            return gson.fromJson(response, type);
+//            if (httpResult.getCode() == 0) {
+//                throw new ApiException(100);
+//            }
+        if("00".equals(httpResult.getRespCode())){
 
+
+        }else {
+            throw new ApiException(httpResult.getRespCode());
+        }
+         return response;
 
     }
 }
