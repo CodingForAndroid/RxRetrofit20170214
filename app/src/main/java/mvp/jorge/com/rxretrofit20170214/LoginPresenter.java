@@ -38,14 +38,26 @@ public class LoginPresenter implements LoginContract.ILoginPresenter {
         SubscriberOnNextListener  onNextListener = new SubscriberOnNextListener() {
             @Override
             public void onNext(Object o) {
-                Log.e("LoginPresenter",""+o.toString());
+                Log.e("getLogin",""+o.toString());
 
             }
         };
-        retrofitHelper.getRsa(new ProgressSubscriber(onNextListener,mContext));
-//        retrofitHelper.getLogin(userName,passWord,new ProgressSubscriber(onNextListener,mContext));
+
+          retrofitHelper.getLogin(userName,passWord,new ProgressSubscriber(onNextListener,mContext));
 //
            }
+
+    public void getRsa(){
+
+        SubscriberOnNextListener  onNextListener = new SubscriberOnNextListener() {
+            @Override
+            public void onNext(Object o) {
+                Log.e("getRsa",""+o.toString());
+
+            }
+        };
+                retrofitHelper.getRsa(new ProgressSubscriber(onNextListener,mContext));
+    }
 
     @Override
     public void attachView(LoginContract.ILoginView view) {

@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 public class MainActivity extends BaseActivity  implements LoginContract.ILoginView{
     private Button loginButton ;
+    private Button rsaButton ;
     private LoginPresenter loginPresenter;
     @Override
     protected void createContent() {
@@ -17,6 +18,7 @@ public class MainActivity extends BaseActivity  implements LoginContract.ILoginV
     @Override
     protected void findViews() {
         loginButton = (Button) findViewById(R.id.logButton);
+        rsaButton = (Button) findViewById(R.id.rsaButton);
     }
 
     @Override
@@ -31,6 +33,12 @@ public class MainActivity extends BaseActivity  implements LoginContract.ILoginV
             @Override
             public void onClick(View view) {
                 loginPresenter.login("18611445571","aaa123456");
+            }
+        });
+        rsaButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                loginPresenter.getRsa();
             }
         });
     }

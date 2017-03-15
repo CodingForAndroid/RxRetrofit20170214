@@ -1,6 +1,7 @@
 package mvp.jorge.com.rxretrofit20170214;
 
 import android.app.Application;
+import android.util.Log;
 
 import java.util.Map;
 
@@ -221,6 +222,7 @@ public class BaseApplication extends Application {
 
             @Override
             public void setRSA(String _rsa) {
+                Log.e("setRSA",rsa);
                 rsa = _rsa;
             }
 

@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 import mvp.jorge.com.rxretrofit20170214.bean.ROConsult;
 import mvp.jorge.com.rxretrofit20170214.entity.HttpResult;
 import mvp.jorge.com.rxretrofit20170214.entity.Subject;
-import mvp.jorge.com.rxretrofit20170214.http.HttpUtils;
+import mvp.jorge.com.rxretrofit20170214.security.RSAUtil;
 import mvp.jorge.com.rxretrofit20170214.security.ThreeDES;
 import mvp.jorge.com.rxretrofit20170214.util.ObjectMaker;
 import okhttp3.Interceptor;
@@ -22,6 +22,7 @@ import okhttp3.Response;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
 import rx.Observable;
+import rx.Observer;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.functions.Action1;
@@ -35,9 +36,11 @@ import rx.schedulers.Schedulers;
 public class RetrofitHelper {
     public  static  final String UserService_IP = "http://wapi.m.womai.com/";
     private  WoMaiApiService woMaiApiService;
+    private  RsaAPi rsaApi ;
     public  final int DEFAULT_TIMEOUT = 30;
     public RetrofitHelper(){
 
+        getRSA();
         getLoginApi();
     }
     public  void  getLoginApi(){
@@ -78,17 +81,63 @@ public class RetrofitHelper {
         Retrofit retrofit = new Retrofit.Builder()
                 .client(OkBuilder.build())
                 .baseUrl(UserService_IP)
-                .addConverterFactory(ResponseConvertFactory.create())
+//            .addConverterFactory(JsonConverterFactory.create())
+                .addConverterFactory(ComConvertFactory.create())
                 .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
                 .build();
         woMaiApiService = retrofit.create(WoMaiApiService.class);
     }
+    public  void  getRSA(){
+        OkHttpClient.Builder   OkBuilder = new OkHttpClient.Builder();
+        Interceptor httpInterceptor =  new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                Request request = chain.request();
+                Request.Builder builder = request.newBuilder();
+                String originalKeyString = ThreeDES.WOMAI_PUBLIC_KEY;
+                String header = ObjectMaker.unConVer(HttpUtils.getHeader());;
+                try {
+                    header = ThreeDES.orginalEncoded(originalKeyString, header);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                builder.addHeader("headerData",header);
+                request = builder.build();
+                return chain.proceed(request);
+
+            }
+        };
+        Interceptor cookiesInterceptor = new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                Request request = chain.request();
+                Request.Builder builder = request.newBuilder();
+                builder.addHeader("Cookie","JSESSIONID=");
+                Response response = chain.proceed(builder.build());
+                return response;
+            }
+        };
+        OkBuilder.addInterceptor(httpInterceptor);
+        OkBuilder.addInterceptor(cookiesInterceptor);
+        OkBuilder.connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+        OkBuilder.readTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS);
+
+        Retrofit retrofit = new Retrofit.Builder()
+                .client(OkBuilder.build())
+                .baseUrl(UserService_IP)
+                .addConverterFactory(JsonConverterFactory.create())
+//                .addConverterFactory(ResponseConvertFactory.create())
+                .addCallAdapterFactory(RxJavaCallAdapterFactory.create())
+                .build();
+         rsaApi = retrofit.create(RsaAPi.class);
+    }
+
 
     /**
      * 获取rsa 证书
      * @param subscriber
      */
-    public void getRsa(Subscriber<List<Subject>> subscriber){
+    public void getRsa(Subscriber  subscriber){
         String originalKeyString = ThreeDES.WOMAI_PUBLIC_KEY;
         Map<String, String> param  = new HashMap<String, String>();;
         try {
@@ -102,16 +151,8 @@ public class RetrofitHelper {
             e.printStackTrace();
         }
 
-        Observable observable =  woMaiApiService.getRsa(param);
-        observable .map(new HttpResultFunc<ROConsult>()).doOnNext(new Action1() {
-            @Override
-            public void call(Object o) {
-                Log.e("HttpResultFunc","1111111111111111");
-            }
-        }).subscribeOn(Schedulers.io())
-                .unsubscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread()).subscribe();
-//        toSubscribe(observable, subscriber);
+        Observable observable =  rsaApi.getRsa(param);
+        toSubscribe(observable, subscriber);
     }
 
     /**
@@ -120,35 +161,42 @@ public class RetrofitHelper {
      * @param passWord
      */
     public void  getLogin(String userName,String passWord ,Subscriber<String> subscriber){
-        Observable observable = woMaiApiService.login(userName,passWord);
-        toSubscribe(observable, subscriber);
-    }
+        Map<String, String> params = new HashMap<String, String>();
+        params.put("userName", userName);
+        params.put("password", passWord);
+//        params = HttpUtils.getNoUserRequestMap(params);
+//
+//        String jiamiKEy = null;
+//
+//        if ((HttpUtils.global.getRSA() == null) || (HttpUtils.global.getRSA().length() == 0)) {
+//            getRsa(subscriber);
+//        }
+//        if ((HttpUtils.global.getRSA() != null) && (HttpUtils.global.getRSA().length() > 0)) {
+//            // 随机生成对称密钥, 通用rsa公钥加密对称密钥
+//            String duichenKey = ThreeDES.genrateRandomPassword(24);
+//               // body
+//            HashMap<String, String> dataParam = new HashMap<String, String>();
+//            try {
+//                jiamiKEy = RSAUtil.rsaBase64(HttpUtils.global.getRSA(), duichenKey);
+////            ObjectMaker.unConVer()
+//                String paramString = ObjectMaker.unConVer(params);
+////                String paramString = Jackson.toJson(params);
+////                logBuffer.append("\n请求参数:\n").append(paramString);
+//                String data = ThreeDES.orginalEncoded(duichenKey, paramString);
+//                dataParam.put("key", jiamiKEy);
+//                dataParam.put("data", data);
+                ;
+                Observable observable = woMaiApiService.login(userName,passWord);
+//                observable.subscribe(new Action1() {
+//                    @Override
+//                    public void call(Object o) {
+//                        Log.e("call"," o.toString = "+o.toString());
+//                    }
+//                });
 
+                toSubscribe(observable, subscriber);
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        }
 
 
 

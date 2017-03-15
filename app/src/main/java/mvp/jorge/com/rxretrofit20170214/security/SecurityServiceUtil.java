@@ -5,8 +5,8 @@ import com.google.gson.Gson;
 import java.util.HashMap;
 import java.util.Map;
 
+import mvp.jorge.com.rxretrofit20170214.HttpUtils;
 import mvp.jorge.com.rxretrofit20170214.bean.ROConsult;
-import mvp.jorge.com.rxretrofit20170214.http.HttpUtils;
 import mvp.jorge.com.rxretrofit20170214.http.ServiceUrl;
 import mvp.jorge.com.rxretrofit20170214.util.ObjectMaker;
 
